@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+
 import numpy as np
 import sys
 from numpy.lib.utils import safe_eval
 import pandas as pd
+
 
 
 class SmithWaterman:
@@ -28,8 +31,6 @@ class SmithWaterman:
         self.sequence_a_alignments = []
         self.sequence_b_alignments = []
 
-      
-
     
     def execute(self):
 
@@ -41,11 +42,12 @@ class SmithWaterman:
 
     def build_scoring_matrix(self):
 	   
-        #NOTE: Build scoring matrix using the maximum value calculated: 
-        # tmp_m => adding match or mismatch depending on the equality 
-        #          of the 2 letters on the previous diagonal score
+        # NOTE: Build scoring matrix using the maximum value calculated: 
+        # tmp_m => adding match or mismatch on the previous diagonal score
+        #          value depending on the equality of the 2 letters, 
         # gap_left => adding gap to the left value
         # gap_top => adding gap to the top value
+        # assign to the actual cell the maximum between this 3 values
 
 	    for i in range(1, len(self.sequence_a) + 1):	
 		    for j in range(1, len(self.sequence_b) + 1):	
@@ -65,73 +67,79 @@ class SmithWaterman:
 
     def find_top_score(self):
 
-        #NOTE: find the maximum scores inside the matrix
-        #and their coordinates using numpy functions
+        # NOTE: find the maximum scores inside the matrix
+        # and their coordinates using numpy functions
 
         self.score = np.amax(self.scoring_matrix)
     
         if self.score == 0:    
-            sys.exit("Maximum score = 0 : no possible alignmets") 
+            sys.exit("Maximum score = 0 : no possible alignmets\n") 
 
         self.max_rows_score, self.max_columns_score = np.where(self.scoring_matrix == self.score)
 
-        if (not self.max_rows_score[0]):
-            self.max_rows_score = [self.max_rows_score,]
-        if (not self.max_columns_score[0]):
-            self.max_columns_score = [self.max_columns_score,]
 
-  
+          
     def traceback(self, i, j ,  partial_alignment_a=[""], partial_alignment_b=[""]):
 
-        #NOTE: Finds recursively all the possible alignments, 
-        #starting from top score coordinates i, j, passing 
-        #everytime the two partial alignments and updated with
-        #the right letter
+        # NOTE: Finds recursively all the possible alignments, 
+        # starting from top score coordinates i j, passing 
+        # everytime the two partial alignments and updating them 
+        # with the right letters, based on the values given by the
+        # scoring matrix. Finally save them in two list where there
+        # are all the possible paths
         
 
         if self.scoring_matrix[i,j] == 0:
             return partial_alignment_a,partial_alignment_b
         else:
-            all_alignments1, all_alignments2 = [],[]
-            tmp_list1, tmp_list2 = [],[]
+            total_alignments_a, total_alignments_b = [],[]
+            tmp_al_a, tmp_al_b = [],[]
 
+        
+        
             if (self.sequence_a[i-1] == self.sequence_b[j-1]):
-                diagonal_score = self.scoring_matrix[i-1,j-1] + self.match 
-            
+                diagonal_score = self.scoring_matrix[i-1,j-1] + self.match   
             else:
                 diagonal_score = self.scoring_matrix[i-1,j-1] + self.mismatch
 
+        # adding a match or mismatch pair on partial alignments
+        # if the current value of matrix is equal to upper diagonal 
+        # value plus match or mismatch
 
             if (self.scoring_matrix[i,j]==diagonal_score):
-                
                 pa_a, pa_b = partial_alignment_a.copy(), partial_alignment_b.copy()
                 pa_a[0] = self.sequence_a[i-1] + pa_a[0]
                 pa_b[0] = self.sequence_b[j-1] + pa_b[0]
-                tmp_list1, tmp_list2 = self.traceback(i-1, j-1, pa_a, pa_b)
-                all_alignments1, all_alignments2 = all_alignments1+tmp_list1, all_alignments2+tmp_list2
+                tmp_al_a, tmp_al_b  = self.traceback(i-1, j-1, pa_a, pa_b)
+                total_alignments_a, total_alignments_b = total_alignments_a+tmp_al_a, total_alignments_b+tmp_al_b
+        
+        # adding gap on partial sequence a if the current value of matrix
+        # is equal to the left value plus the gap
 
-            if self.scoring_matrix[i, j-1] + self.gap == self.scoring_matrix[i, j]: # gap left       
-                
+            if self.scoring_matrix[i, j-1] + self.gap == self.scoring_matrix[i, j]:          
                 pa_a,pa_b = partial_alignment_a.copy(), partial_alignment_b.copy()
                 pa_a[0] = "-" + pa_a[0]
                 pa_b[0] = self.sequence_b[j-1] + pa_b[0]
-                tmp_list1, tmp_list2 = self.traceback(i,j-1, pa_a, pa_b)
-                all_alignments1, all_alignments2 = all_alignments1+tmp_list1, all_alignments2+tmp_list2
+                tmp_al_a, tmp_al_b  = self.traceback(i,j-1, pa_a, pa_b)
+                total_alignments_a, total_alignments_b = total_alignments_a+tmp_al_a, total_alignments_b+tmp_al_b
+        
+        # adding gap on partial sequence b if the current value of matrix
+        # is equal to the upper value
 
-            if self.scoring_matrix[i-1, j] + self.gap == self.scoring_matrix[i, j]: # gap top
-                
+            if self.scoring_matrix[i-1, j] + self.gap == self.scoring_matrix[i, j]:    
                 pa_a,pa_b = partial_alignment_a.copy(), partial_alignment_b.copy()
                 pa_a[0] = self.sequence_a[i-1] + pa_a[0]
                 pa_b[0] = "-" + pa_b[0]
-                tmp_list1, tmp_list2 = self.traceback(i-1,j, pa_a, pa_b)
-                all_alignments1, all_alignments2 = all_alignments1+tmp_list1, all_alignments2+tmp_list2
+                tmp_al_a, tmp_al_b  = self.traceback(i-1,j, pa_a, pa_b)
+                total_alignments_a, total_alignments_b = total_alignments_a+tmp_al_a, total_alignments_b+tmp_al_b
         
-            return all_alignments1, all_alignments2 
+            return total_alignments_a, total_alignments_b 
 
 
     def find_all_different_alignments(self):
 
-        #NOTE: For all the top scores coordinates do the traceback
+        # NOTE: For all the top scores coordinates do the traceback 
+        # to find the different local alignments
 
          for i in range(len(self.max_rows_score)):
             alignments1, alignments2 = self.traceback(i = self.max_rows_score[i], j = self.max_columns_score[i])
@@ -142,7 +150,7 @@ class SmithWaterman:
     def print_result(self):
 
         print("\n")
-        print("\033[1m"+"SCORING MATRIX:"+"\033[0m")
+        print("SCORING MATRIX:")
         print("\n")
         index = " "+self.sequence_a
         columns = " "+self.sequence_b
@@ -150,24 +158,27 @@ class SmithWaterman:
         matrix=matrix.astype(int)
         print(matrix)
         print("\n")
-        print("\033[1m"+"Results:"+"\033[0m")
+        print("Results:")
         print("Top score is: "+str(int(self.score)))
         print("There are ",len(self.sequence_a_alignments), " different alignments\n")
         
 
         for i in range(len(self.sequence_a_alignments)):
-            print("\033[1m"+"Alignment " + str(i+1) + ":"+"\033[0m")
+            print("Alignment " + str(i+1) + ":")
             n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b = self.statistics(self.sequence_a_alignments[i], self.sequence_b_alignments[i])
             print("Match: "+str(n_match))
             print("Mismatch: "+str(n_mismatch))
             print("Gap sequence A: "+str(n_gap_seq_a))
             print("Gap sequence B: "+str(n_gap_seq_b)+"\n")
-            print("\033[1m"+self.sequence_a_alignments[i]+"\033[0m")
-            print("\033[1m"+self.sequence_b_alignments[i]+"\033[0m") 
+            print(self.sequence_a_alignments[i])
+            print(self.sequence_b_alignments[i]) 
             print("\n")
 
 
     def statistics(self, a,b):
+        # NOTE: Some statistics like number of 
+        # mismatch, match, gaps
+
         n_mismatch = 0
         n_gap_seq_a = a.count("-")
         n_gap_seq_b = b.count("-")

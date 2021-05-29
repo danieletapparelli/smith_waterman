@@ -1,5 +1,6 @@
-import sys
+#!/usr/bin/env python
 
+import sys
 
 class Interface:
 
@@ -18,16 +19,16 @@ class Interface:
         gap = -2
 
         if len(sys.argv) < 2:
-            print('\033[91m'+"Invalid number of input arguments\n"+'\033[0m')
+            print("Invalid number of input arguments\n")
             self.help()
         
         for i in range(1, len(argv)):
-            if argv[i] == '-h' or argv[i] == '--help':
+            if argv[i] == '-h':
                 self.help()
             
-            elif argv[i] == '-i' or argv[i] == '--interface':
-                sequence_a = input("Insert the first sequence: ")
-                sequence_b = input("Insert the second sequence: ")
+            elif argv[i] == '-int' :
+                sequence_a = input("Insert the sequence A: ")
+                sequence_b = input("Insert the second sequence B: ")
             
                 character = False
 
@@ -42,18 +43,16 @@ class Interface:
                         character = True       
             
                     elif decision == "N":
-                        print("Set default values")
+                        print("Setting default values")
                         character = True
                 
                     else:
-                        print('\033[91m'+"Error: character not recognized"+'\033[0m')
+                        print("Error: character not recognized")
 
-            elif i == 1: # if no option have been used
+            elif i == 1: 
                 if len(sys.argv) == 3:
                     sequence_a = argv[i]
                     sequence_b = argv[i+1]
-
-                    print("LEN"+str(len(sys.argv)))
 
                 elif len(sys.argv) == 6:
                     match = int(argv[i+2])
@@ -61,18 +60,17 @@ class Interface:
                     gap = int(argv[i+4])
                 
                 else:
-                    print('\033[91m'+"Invalid number of input arguments\n"+'\033[0m')
+                    print("Error: Invalid number of input arguments\n")
                     self.help() 
         
         return sequence_a, sequence_b, match, mismatch, gap
     
 
     def help(self):
-        print("\033[1m"+"Usage:"+"\033[0m")
+        print("Usage:")
         print("Default Match/Mismatch/Gap: python smith_waterman.py sequence_a sequence_b")
         print("Set Match/Mismatch/Gap: python smith_waterman.py sequence_a sequence_b match mismatch gap\n")
-        print("\033[1m"+"Additional options:""\033[0m")
-        print("-i --interface: User friendly interface ")
-        print("-h --help: Show the manual")
-        print("-f --file: ")
+        print("Different options:")
+        print("Guided interface: python smith_waterman.py -int")
+        print("Show the manual: python smith_waterman.py -h\n")   
         sys.exit()
