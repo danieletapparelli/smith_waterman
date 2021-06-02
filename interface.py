@@ -9,6 +9,7 @@ class Interface:
         sequence_a, sequence_b, match, mismatch, gap = self.check_arguments(argv=sys.argv)
         return sequence_a, sequence_b, match, mismatch, gap
 
+
     def check_arguments(self, argv): 
         print("\n")
         print("*********** Smith-Waterman Algorithm ***********\n")
@@ -18,9 +19,9 @@ class Interface:
         mismatch = -3
         gap = -2
 
-        if len(sys.argv) < 2:
-            print("Invalid number of input arguments\n")
-            self.help()
+        # if len(sys.argv) < 2:
+        #     print("Invalid number of input arguments\n")
+        #     self.help()
         
         for i in range(1, len(argv)):
             if argv[i] == '-h':
@@ -37,9 +38,9 @@ class Interface:
                     decision = decision.upper()
             
                     if decision == "Y":
-                        match = int(input("Insert match value: "))
-                        mismatch = int(input("Insert mismatch value: "))
-                        gap = int(input("Insert gap value: "))    
+                        match = self.isValid("Insert match value: ")
+                        mismatch = self.isValid("Insert mismatch value: ")
+                        gap = self.isValid("Insert gap value: ")
                         character = True       
             
                     elif decision == "N":
@@ -55,16 +56,34 @@ class Interface:
                     sequence_b = argv[i+1]
 
                 elif len(sys.argv) == 6:
-                    match = int(argv[i+2])
-                    mismatch = int(argv[i+3])
-                    gap = int(argv[i+4])
+                    sequence_a = argv[i]
+                    sequence_b = argv[i+1]
+                    try:
+                        match = int(argv[i+2])
+                        mismatch = int(argv[i+3])
+                        gap = int(argv[i+4])
+                    except ValueError:
+                        print("Error: Match, Mismatch or GAP are not numbers\n")
+                        sys.exit()
                 
                 else:
                     print("Error: Invalid number of input arguments\n")
                     self.help() 
         
         return sequence_a, sequence_b, match, mismatch, gap
+
     
+    def isValid(self, message):
+        error = True
+        while error:
+            value = input(message)
+            try:
+                val = int(value)
+                return val
+            except ValueError:
+                print("Error: Enter a valid value")
+        
+
 
     def help(self):
         print("Usage:")

@@ -165,9 +165,10 @@ class SmithWaterman:
 
         for i in range(len(self.sequence_a_alignments)):
             print("Alignment " + str(i+1) + ":")
-            n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b = self.statistics(self.sequence_a_alignments[i], self.sequence_b_alignments[i])
+            n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps = self.statistics(self.sequence_a_alignments[i], self.sequence_b_alignments[i])
             print("Match: "+str(n_match))
             print("Mismatch: "+str(n_mismatch))
+            print("Total gaps: "+str(total_gaps))
             print("Gap sequence A: "+str(n_gap_seq_a))
             print("Gap sequence B: "+str(n_gap_seq_b)+"\n")
             print(self.sequence_a_alignments[i])
@@ -182,6 +183,7 @@ class SmithWaterman:
         n_mismatch = 0
         n_gap_seq_a = a.count("-")
         n_gap_seq_b = b.count("-")
+        total_gaps = n_gap_seq_a + n_gap_seq_b
         n_match = 0
 
         for i in range(len(a)):
@@ -193,4 +195,4 @@ class SmithWaterman:
             else:
                 n_match += 1
 
-        return n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b
+        return n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps
