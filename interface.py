@@ -4,7 +4,7 @@ import sys
 
 class Interface:
 
-    
+    #start the interface and initialize smith-waterman variables
     def start(self):
         sequence_a, sequence_b, match, mismatch, gap = self.check_arguments(argv=sys.argv)
         return sequence_a, sequence_b, match, mismatch, gap
@@ -19,15 +19,19 @@ class Interface:
         mismatch = -3
         gap = -2
 
-        # if len(sys.argv) < 2:
-        #     print("Invalid number of input arguments\n")
-        #     self.help()
+        #minimum number of arguments
+        if len(sys.argv) < 2:
+            print("Invalid number of input arguments\n")
+            self.help()
         
         for i in range(1, len(argv)):
-            if argv[i] == '-h':
+
+            #help menu
+            if argv[i] == '--help':
                 self.help()
             
-            elif argv[i] == '-int' :
+            #guided interface
+            elif argv[i] == '--interface' :
                 sequence_a = input("Insert the sequence A: ")
                 sequence_b = input("Insert the second sequence B: ")
             
@@ -50,6 +54,9 @@ class Interface:
                     else:
                         print("Error: character not recognized")
 
+            #arguments: 
+            #args = 2 only the two sequences with default values
+            #args = 5 set the match, mismatch, gap values
             elif i == 1: 
                 if len(sys.argv) == 3:
                     sequence_a = argv[i]
@@ -73,6 +80,7 @@ class Interface:
         return sequence_a, sequence_b, match, mismatch, gap
 
     
+    #check in the guided interface if the match, mismatch and gap are numbers
     def isValid(self, message):
         error = True
         while error:
@@ -90,6 +98,6 @@ class Interface:
         print("Default Match/Mismatch/Gap: python smith_waterman.py sequence_a sequence_b")
         print("Set Match/Mismatch/Gap: python smith_waterman.py sequence_a sequence_b match mismatch gap\n")
         print("Different options:")
-        print("Guided interface: python smith_waterman.py -int")
-        print("Show the manual: python smith_waterman.py -h\n")   
+        print("Guided interface: python smith_waterman.py --interface")
+        print("Show the manual: python smith_waterman.py --help\n")   
         sys.exit()

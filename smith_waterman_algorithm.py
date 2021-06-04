@@ -22,12 +22,12 @@ class SmithWaterman:
         #for the 0s lines
         self.scoring_matrix = np.zeros((len(sequence_a)+ 1, len(sequence_b) + 1,)) 
         
-        #initialize maximum score, and their coordinates
+        #initialize maximum score, and its coordinates
         self.score = 0
         self.max_rows_score = []
         self.max_columns_score = []
 
-        #initialize lists to save alignments
+        #initialize lists to save final alignments
         self.sequence_a_alignments = []
         self.sequence_b_alignments = []
 
@@ -43,10 +43,11 @@ class SmithWaterman:
     def build_scoring_matrix(self):
 	   
         # NOTE: Build scoring matrix using the maximum value calculated: 
-        # tmp_m => adding match or mismatch on the previous diagonal score
-        #          value depending on the equality of the 2 letters, 
-        # gap_left => adding gap to the left value
-        # gap_top => adding gap to the top value
+        # tmp_m => calculated adding match or mismatch on the previous 
+        #          diagonal score value depending on the equality of the 
+        #          2 letters, 
+        # gap_left => calculated adding gap to the left value
+        # gap_top => calculated adding gap to the top value
         # assign to the actual cell the maximum between this 3 values
 
 	    for i in range(1, len(self.sequence_a) + 1):	
@@ -85,8 +86,9 @@ class SmithWaterman:
         # starting from top score coordinates i j, passing 
         # everytime the two partial alignments and updating them 
         # with the right letters, based on the values given by the
-        # scoring matrix. Finally save them in two list where there
-        # are all the possible paths
+        # scoring matrix, using a string concatenation. Finally 
+        # save them in two list where there are all the possible paths,
+        # if more than one
         
 
         if self.scoring_matrix[i,j] == 0:
@@ -164,8 +166,10 @@ class SmithWaterman:
         
 
         for i in range(len(self.sequence_a_alignments)):
-            print("Alignment " + str(i+1) + ":")
-            n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps = self.statistics(self.sequence_a_alignments[i], self.sequence_b_alignments[i])
+            n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps, len_alignmet = \
+                self.statistics(self.sequence_a_alignments[i], self.sequence_b_alignments[i])
+
+            print("Alignment " + str(i+1) + ", length ("+str(len_alignmet)+"):")
             print("Match: "+str(n_match))
             print("Mismatch: "+str(n_mismatch))
             print("Total gaps: "+str(total_gaps))
@@ -178,8 +182,10 @@ class SmithWaterman:
 
     def statistics(self, a,b):
         # NOTE: Some statistics like number of 
-        # mismatch, match, gaps
+        # mismatch, match, gaps, length of the
+        # alignment
 
+        len_alingment = len(a)
         n_mismatch = 0
         n_gap_seq_a = a.count("-")
         n_gap_seq_b = b.count("-")
@@ -195,4 +201,4 @@ class SmithWaterman:
             else:
                 n_match += 1
 
-        return n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps
+        return n_match, n_mismatch, n_gap_seq_a, n_gap_seq_b, total_gaps, len_alingment
